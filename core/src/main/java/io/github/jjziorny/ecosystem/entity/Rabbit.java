@@ -4,11 +4,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Rabbit {
 
-    private static final float SPEED = 10f;
+    private static final float SPEED = 5f;
+    private static final float INITIAL_ENERGY = 100f;
+    private static final float ENERGY_LOSS_PER_SECOND = 10f;
 
     private Position position;
     private float directionX;
     private float directionY;
+    private float energy = INITIAL_ENERGY;
 
     public Rabbit(Position position) {
         this.position = position;
@@ -21,7 +24,13 @@ public class Rabbit {
         float maxX,
         float minY,
         float maxY
+
     ) {
+        loseEnergy(deltaTime);
+
+        if (!isAlive()) {
+            return;
+        }
         float nextX = position.x() + directionX * SPEED * deltaTime;
         float nextY = position.y() + directionY * SPEED * deltaTime;
 
@@ -52,5 +61,19 @@ public class Rabbit {
 
     public Position getPosition() {
         return position;
+    }
+    private void loseEnergy(float deltaTime) {
+        energy = Math.max(
+            0f,
+            energy - ENERGY_LOSS_PER_SECOND * deltaTime
+        );
+    }
+
+    public boolean isAlive() {
+        return energy > 0f;
+    }
+
+    public float getEnergy() {
+        return energy;
     }
 }

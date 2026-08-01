@@ -54,6 +54,7 @@ public class EcosystemGame extends ApplicationAdapter {
                 WORLD_HEIGHT - RABBIT_RADIUS
             );
         }
+        rabbits.removeIf(rabbit -> !rabbit.isAlive());
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
         viewport.apply();
         camera.update();
