@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import io.github.jjziorny.ecosystem.entity.Rabbit;
+import io.github.jjziorny.ecosystem.world.Position;
 
 public class EcosystemGame extends ApplicationAdapter {
 
@@ -19,6 +21,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
     private ShapeRenderer shapeRenderer;
+    private Rabbit rabbit;
 
     @Override
     public void create() {
@@ -30,7 +33,12 @@ public class EcosystemGame extends ApplicationAdapter {
             true
         );
         shapeRenderer = new ShapeRenderer();
+        rabbit = new Rabbit(
+            new Position(WORLD_WIDTH / 2f, WORLD_HEIGHT / 2f)
+        );
     }
+
+
     @Override
     public void render(){
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
@@ -39,8 +47,10 @@ public class EcosystemGame extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.circle(WORLD_WIDTH / 2f,
-            WORLD_HEIGHT / 2f,
+        Position rabbitPosition = rabbit.getPosition();
+        shapeRenderer.circle(
+            rabbitPosition.x(),
+            rabbitPosition.y(),
             RABBIT_RADIUS,
             RABBIT_SEGMENTS
         );
