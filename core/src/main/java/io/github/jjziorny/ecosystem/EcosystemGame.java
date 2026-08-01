@@ -10,6 +10,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import io.github.jjziorny.ecosystem.entity.Rabbit;
 import io.github.jjziorny.ecosystem.world.Position;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class EcosystemGame extends ApplicationAdapter {
 
@@ -17,11 +20,12 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final float WORLD_HEIGHT = 60f;
     private static final float RABBIT_RADIUS = 1.5f;
     private static final int RABBIT_SEGMENTS = 32;
+    private static final int INITIAL_RABBIT_COUNT = 10;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private ShapeRenderer shapeRenderer;
-    private Rabbit rabbit;
+    private List<Rabbit> rabbits;
 
     @Override
     public void create() {
@@ -33,35 +37,39 @@ public class EcosystemGame extends ApplicationAdapter {
             true
         );
         shapeRenderer = new ShapeRenderer();
-        rabbit = new Rabbit(
-            new Position(WORLD_WIDTH / 2f, WORLD_HEIGHT / 2f)
-        );
+        rabbits = new ArrayList<>();
+        createInitialRabbits();
     }
 
 
     @Override
     public void render(){
         float deltaTime = Gdx.graphics.getDeltaTime();
-        rabbit.update(
-            deltaTime,
-            RABBIT_RADIUS,
-            WORLD_WIDTH - RABBIT_RADIUS,
-            RABBIT_RADIUS,
-            WORLD_HEIGHT - RABBIT_RADIUS
-        );
+        for (Rabbit rabbit : rabbits) {
+            rabbit.update(
+                deltaTime,
+                RABBIT_RADIUS,
+                WORLD_WIDTH - RABBIT_RADIUS,
+                RABBIT_RADIUS,
+                WORLD_HEIGHT - RABBIT_RADIUS
+            );
+        }
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
         viewport.apply();
         camera.update();
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
-        Position rabbitPosition = rabbit.getPosition();
-        shapeRenderer.circle(
-            rabbitPosition.x(),
-            rabbitPosition.y(),
-            RABBIT_RADIUS,
-            RABBIT_SEGMENTS
-        );
+        for (Rabbit rabbit : rabbits) {
+            Position rabbitPosition = rabbit.getPosition();
+
+            shapeRenderer.circle(
+                rabbitPosition.x(),
+                rabbitPosition.y(),
+                RABBIT_RADIUS,
+                RABBIT_SEGMENTS
+            );
+        }
         shapeRenderer.end();
     }
     @Override
@@ -73,4 +81,23 @@ public class EcosystemGame extends ApplicationAdapter {
     public void dispose() {
         shapeRenderer.dispose();
     }
+
+    private void createInitialRabbits() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        for (int index = 0; index < INITIAL_RABBIT_COUNT; index++) {
+            float x = (float) random.nextDouble(
+                RABBIT_RADIUS,
+                WORLD_WIDTH - RABBIT_RADIUS
+            );
+
+            float y = (float) random.nextDouble(
+                RABBIT_RADIUS,
+                WORLD_HEIGHT - RABBIT_RADIUS
+            );
+
+            rabbits.add(new Rabbit(new Position(x, y)));
+        }
+    }
 }
+
