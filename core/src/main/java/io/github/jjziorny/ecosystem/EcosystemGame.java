@@ -54,14 +54,19 @@ public class EcosystemGame extends ApplicationAdapter {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         for (Rabbit rabbit : rabbits) {
-            rabbit.update(
+            Grass eatenGrass = (Grass) rabbit.update(
                 deltaTime,
                 grassPatches,
+                RABBIT_RADIUS + GRASS_RADIUS,
                 RABBIT_RADIUS,
                 WORLD_WIDTH - RABBIT_RADIUS,
                 RABBIT_RADIUS,
                 WORLD_HEIGHT - RABBIT_RADIUS
             );
+
+            if (eatenGrass != null) {
+                grassPatches.remove(eatenGrass);
+            }
         }
 
         rabbits.removeIf(rabbit -> !rabbit.isAlive());

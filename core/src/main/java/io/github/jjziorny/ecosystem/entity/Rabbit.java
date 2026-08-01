@@ -8,6 +8,8 @@ public class Rabbit {
     private static final float SPEED = 5f;
     private static final float INITIAL_ENERGY = 100f;
     private static final float ENERGY_LOSS_PER_SECOND = 10f;
+    private static final float MAX_ENERGY = 150f;
+    private static final float ENERGY_GAIN_FROM_GRASS = 30f;
 
     private Position position;
     private float directionX;
@@ -19,9 +21,10 @@ public class Rabbit {
         chooseRandomDirection();
     }
 
-    public void update(
+    public Object update(
         float deltaTime,
         List<Grass> grassPatches,
+        float eatingDistance,
         float minX,
         float maxX,
         float minY,
@@ -31,7 +34,7 @@ public class Rabbit {
         loseEnergy(deltaTime);
 
         if (!isAlive()) {
-            return;
+            return null;
         }
         Grass closestGrass = findClosestGrass(grassPatches);
 
@@ -52,6 +55,18 @@ public class Rabbit {
         }
 
         position = new Position(nextX, nextY);
+        if (
+            closestGrass != null
+                && position.distanceTo(closestGrass.getPosition()) <= eatingDistance
+        ) {
+            gainEnergy(ENERGY_GAIN_FROM_GRASS);
+            return closestGrass;
+        }
+
+        return null;
+    }
+    private void gainEnergy(float amount) {
+        energy = Math.min(MAX_ENERGY, energy + amount);
     }
 
     private void chooseRandomDirection() {
