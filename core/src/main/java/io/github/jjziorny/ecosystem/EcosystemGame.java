@@ -41,6 +41,14 @@ public class EcosystemGame extends ApplicationAdapter {
 
     @Override
     public void render(){
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        rabbit.update(
+            deltaTime,
+            RABBIT_RADIUS,
+            WORLD_WIDTH - RABBIT_RADIUS,
+            RABBIT_RADIUS,
+            WORLD_HEIGHT - RABBIT_RADIUS
+        );
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
         viewport.apply();
         camera.update();
