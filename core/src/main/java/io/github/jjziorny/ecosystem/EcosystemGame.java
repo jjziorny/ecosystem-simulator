@@ -56,6 +56,7 @@ public class EcosystemGame extends ApplicationAdapter {
         for (Rabbit rabbit : rabbits) {
             rabbit.update(
                 deltaTime,
+                grassPatches,
                 RABBIT_RADIUS,
                 WORLD_WIDTH - RABBIT_RADIUS,
                 RABBIT_RADIUS,

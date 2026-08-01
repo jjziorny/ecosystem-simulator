@@ -1,6 +1,7 @@
 package io.github.jjziorny.ecosystem.entity;
 import io.github.jjziorny.ecosystem.world.Position;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
 
 public class Rabbit {
 
@@ -20,6 +21,7 @@ public class Rabbit {
 
     public void update(
         float deltaTime,
+        List<Grass> grassPatches,
         float minX,
         float maxX,
         float minY,
@@ -30,6 +32,11 @@ public class Rabbit {
 
         if (!isAlive()) {
             return;
+        }
+        Grass closestGrass = findClosestGrass(grassPatches);
+
+        if (closestGrass != null) {
+            pointToward(closestGrass.getPosition());
         }
         float nextX = position.x() + directionX * SPEED * deltaTime;
         float nextY = position.y() + directionY * SPEED * deltaTime;
@@ -75,5 +82,32 @@ public class Rabbit {
 
     public float getEnergy() {
         return energy;
+    }
+    private Grass findClosestGrass(List<Grass> grassPatches) {
+        Grass closestGrass = null;
+        float smallestDistance = Float.MAX_VALUE;
+
+        for (Grass grass : grassPatches) {
+            float distance = position.distanceTo(grass.getPosition());
+
+            if (distance < smallestDistance) {
+                smallestDistance = distance;
+                closestGrass = grass;
+            }
+        }
+
+        return closestGrass;
+    }
+    private void pointToward(Position target) {
+        float deltaX = target.x() - position.x();
+        float deltaY = target.y() - position.y();
+        float distance = position.distanceTo(target);
+
+        if (distance <= 0.0001f) {
+            return;
+        }
+
+        directionX = deltaX / distance;
+        directionY = deltaY / distance;
     }
 }
