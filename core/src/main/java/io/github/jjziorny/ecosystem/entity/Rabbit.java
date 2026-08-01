@@ -11,11 +11,16 @@ public class Rabbit {
     private static final float MAX_ENERGY = 150f;
     private static final float ENERGY_GAIN_FROM_GRASS = 30f;
     private static final float HUNGER_THRESHOLD = 100f;
+    private static final float REPRODUCTION_ENERGY_THRESHOLD = 125f;
+    private static final float REPRODUCTION_ENERGY_COST = 60f;
+    private static final float NEWBORN_ENERGY = 50f;
+    private static final float REPRODUCTION_COOLDOWN_DURATION = 8f;
 
     private Position position;
     private float directionX;
     private float directionY;
     private float energy = INITIAL_ENERGY;
+    private float reproductionCooldown;
 
     public Rabbit(Position position) {
         this.position = position;
@@ -33,6 +38,11 @@ public class Rabbit {
 
     ) {
         loseEnergy(deltaTime);
+
+        reproductionCooldown = Math.max(
+            0f,
+            reproductionCooldown - deltaTime
+        );
 
         if (!isAlive()) {
             return null;
@@ -132,5 +142,28 @@ public class Rabbit {
     }
     private boolean isHungry() {
         return energy < HUNGER_THRESHOLD;
+    }
+    public boolean canReproduce() {
+        return isAlive()
+            && energy >= REPRODUCTION_ENERGY_THRESHOLD
+            && reproductionCooldown <= 0f;
+    }
+    public Rabbit reproduce() {
+        if (!canReproduce()) {
+            return null;
+        }
+
+        energy -= REPRODUCTION_ENERGY_COST;
+        reproductionCooldown = REPRODUCTION_COOLDOWN_DURATION;
+
+        Rabbit newborn = new Rabbit(
+            new Position(position.x(), position.y())
+        );
+
+        newborn.energy = NEWBORN_ENERGY;
+        newborn.reproductionCooldown =
+            REPRODUCTION_COOLDOWN_DURATION;
+
+        return newborn;
     }
 }

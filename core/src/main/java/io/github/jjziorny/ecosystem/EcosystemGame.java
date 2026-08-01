@@ -27,6 +27,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final int GRASS_SEGMENTS = 12;
     private static final int MAX_GRASS_COUNT = 100;
     private static final float GRASS_GROWTH_INTERVAL = 0.3f;
+    private static final int MAX_RABBIT_COUNT = 50;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -52,12 +53,15 @@ public class EcosystemGame extends ApplicationAdapter {
     }
 
 
+
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
+        List<Rabbit> newbornRabbits = new ArrayList<>();
 
+        // Atualiza os coelhos
         for (Rabbit rabbit : rabbits) {
-            Grass eatenGrass = (Grass) rabbit.update(
+            Object eatenGrass = rabbit.update(
                 deltaTime,
                 grassPatches,
                 RABBIT_RADIUS + GRASS_RADIUS,
@@ -70,11 +74,25 @@ public class EcosystemGame extends ApplicationAdapter {
             if (eatenGrass != null) {
                 grassPatches.remove(eatenGrass);
             }
+
+            if (
+                rabbits.size() + newbornRabbits.size() < MAX_RABBIT_COUNT
+                    && rabbit.canReproduce()
+            ) {
+                Rabbit newborn = rabbit.reproduce();
+
+                if (newborn != null) {
+                    newbornRabbits.add(newborn);
+                }
+            }
         }
 
+        rabbits.addAll(newbornRabbits);
         rabbits.removeIf(rabbit -> !rabbit.isAlive());
+
         growGrass(deltaTime);
 
+        // Limpa e prepara a tela
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
 
         viewport.apply();
@@ -83,6 +101,7 @@ public class EcosystemGame extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        // Desenha a grama
         shapeRenderer.setColor(Color.GREEN);
 
         for (Grass grass : grassPatches) {
@@ -96,6 +115,7 @@ public class EcosystemGame extends ApplicationAdapter {
             );
         }
 
+        // Desenha os coelhos
         shapeRenderer.setColor(Color.WHITE);
 
         for (Rabbit rabbit : rabbits) {
