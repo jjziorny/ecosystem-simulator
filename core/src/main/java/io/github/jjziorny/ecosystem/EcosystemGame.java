@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import io.github.jjziorny.ecosystem.entity.Grass;
+import io.github.jjziorny.ecosystem.entity.Fox;
 
 public class EcosystemGame extends ApplicationAdapter {
 
@@ -29,12 +30,16 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final float GRASS_GROWTH_INTERVAL = 0.3f;
     private static final int MAX_RABBIT_COUNT = 50;
     private static final float TITLE_UPDATE_INTERVAL = 0.25f;
+    private static final int INITIAL_FOX_COUNT = 3;
+    private static final float FOX_RADIUS = 1.8f;
+    private static final int FOX_SEGMENTS = 32;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private ShapeRenderer shapeRenderer;
     private List<Rabbit> rabbits;
     private List<Grass> grassPatches;
+    private List<Fox> foxes;
     private float grassGrowthTimer;
     private float titleUpdateTimer;
 
@@ -52,6 +57,8 @@ public class EcosystemGame extends ApplicationAdapter {
         createInitialRabbits();
         grassPatches = new ArrayList<>();
         createInitialGrass();
+        foxes = new ArrayList<>();
+        createInitialFoxes();
     }
 
 
@@ -131,8 +138,21 @@ public class EcosystemGame extends ApplicationAdapter {
                 RABBIT_SEGMENTS
             );
         }
+        shapeRenderer.setColor(Color.ORANGE);
+
+        for (Fox fox : foxes) {
+            Position foxPosition = fox.getPosition();
+
+            shapeRenderer.circle(
+                foxPosition.x(),
+                foxPosition.y(),
+                FOX_RADIUS,
+                FOX_SEGMENTS
+            );
+        }
 
         shapeRenderer.end();
+
     }
     @Override
     public void resize(int width, int height) {
@@ -204,9 +224,27 @@ public class EcosystemGame extends ApplicationAdapter {
             "Ecosystem Simulator"
                 + " | Coelhos: " + rabbits.size()
                 + " | Grama: " + grassPatches.size()
+                + " | Raposas: " + foxes.size()
         );
 
         titleUpdateTimer = 0f;
+    }
+    private void createInitialFoxes() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        for (int index = 0; index < INITIAL_FOX_COUNT; index++) {
+            float x = (float) random.nextDouble(
+                FOX_RADIUS,
+                WORLD_WIDTH - FOX_RADIUS
+            );
+
+            float y = (float) random.nextDouble(
+                FOX_RADIUS,
+                WORLD_HEIGHT - FOX_RADIUS
+            );
+
+            foxes.add(new Fox(new Position(x, y)));
+        }
     }
 }
 
