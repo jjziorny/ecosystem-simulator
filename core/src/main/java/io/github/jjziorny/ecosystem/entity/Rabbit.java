@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Rabbit {
 
-    private static final float SPEED = 5f;
+    private static final float SPEED = 10f;
     private static final float INITIAL_ENERGY = 100f;
     private static final float ENERGY_LOSS_PER_SECOND = 10f;
     private static final float MAX_ENERGY = 150f;

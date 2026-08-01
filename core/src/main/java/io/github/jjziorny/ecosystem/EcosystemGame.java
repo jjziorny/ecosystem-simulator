@@ -25,12 +25,15 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final int INITIAL_GRASS_COUNT = 100;
     private static final float GRASS_RADIUS = 0.35f;
     private static final int GRASS_SEGMENTS = 12;
+    private static final int MAX_GRASS_COUNT = 100;
+    private static final float GRASS_GROWTH_INTERVAL = 0.3f;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private ShapeRenderer shapeRenderer;
     private List<Rabbit> rabbits;
     private List<Grass> grassPatches;
+    private float grassGrowthTimer;
 
     @Override
     public void create() {
@@ -70,6 +73,7 @@ public class EcosystemGame extends ApplicationAdapter {
         }
 
         rabbits.removeIf(rabbit -> !rabbit.isAlive());
+        growGrass(deltaTime);
 
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
 
@@ -135,20 +139,35 @@ public class EcosystemGame extends ApplicationAdapter {
         }
     }
     private void createInitialGrass() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-
         for (int index = 0; index < INITIAL_GRASS_COUNT; index++) {
-            float x = (float) random.nextDouble(
-                GRASS_RADIUS,
-                WORLD_WIDTH - GRASS_RADIUS
-            );
+            grassPatches.add(createGrass());
+        }
+    }
+    private Grass createGrass() {
+        float x = GRASS_RADIUS
+            + ThreadLocalRandom.current().nextFloat()
+            * (WORLD_WIDTH - 2f * GRASS_RADIUS);
 
-            float y = (float) random.nextDouble(
-                GRASS_RADIUS,
-                WORLD_HEIGHT - GRASS_RADIUS
-            );
+        float y = GRASS_RADIUS
+            + ThreadLocalRandom.current().nextFloat()
+            * (WORLD_HEIGHT - 2f * GRASS_RADIUS);
 
-            grassPatches.add(new Grass(new Position(x, y)));
+        return new Grass(new Position(x, y));
+    }
+    private void growGrass(float deltaTime) {
+        if (grassPatches.size() >= MAX_GRASS_COUNT) {
+            grassGrowthTimer = 0f;
+            return;
+        }
+
+        grassGrowthTimer += deltaTime;
+
+        while (
+            grassGrowthTimer >= GRASS_GROWTH_INTERVAL
+                && grassPatches.size() < MAX_GRASS_COUNT
+        ) {
+            grassPatches.add(createGrass());
+            grassGrowthTimer -= GRASS_GROWTH_INTERVAL;
         }
     }
 }
