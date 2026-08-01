@@ -28,6 +28,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final int MAX_GRASS_COUNT = 100;
     private static final float GRASS_GROWTH_INTERVAL = 0.3f;
     private static final int MAX_RABBIT_COUNT = 50;
+    private static final float TITLE_UPDATE_INTERVAL = 0.25f;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -35,6 +36,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private List<Rabbit> rabbits;
     private List<Grass> grassPatches;
     private float grassGrowthTimer;
+    private float titleUpdateTimer;
 
     @Override
     public void create() {
@@ -91,6 +93,7 @@ public class EcosystemGame extends ApplicationAdapter {
         rabbits.removeIf(rabbit -> !rabbit.isAlive());
 
         growGrass(deltaTime);
+        updateWindowTitle(deltaTime);
 
         // Limpa e prepara a tela
         ScreenUtils.clear(0.08f, 0.16f, 0.10f, 1f);
@@ -189,6 +192,21 @@ public class EcosystemGame extends ApplicationAdapter {
             grassPatches.add(createGrass());
             grassGrowthTimer -= GRASS_GROWTH_INTERVAL;
         }
+    }
+    private void updateWindowTitle(float deltaTime) {
+        titleUpdateTimer += deltaTime;
+
+        if (titleUpdateTimer < TITLE_UPDATE_INTERVAL) {
+            return;
+        }
+
+        Gdx.graphics.setTitle(
+            "Ecosystem Simulator"
+                + " | Coelhos: " + rabbits.size()
+                + " | Grama: " + grassPatches.size()
+        );
+
+        titleUpdateTimer = 0f;
     }
 }
 
