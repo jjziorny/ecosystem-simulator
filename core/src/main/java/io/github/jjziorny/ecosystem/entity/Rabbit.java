@@ -10,6 +10,7 @@ public class Rabbit {
     private static final float ENERGY_LOSS_PER_SECOND = 10f;
     private static final float MAX_ENERGY = 150f;
     private static final float ENERGY_GAIN_FROM_GRASS = 30f;
+    private static final float HUNGER_THRESHOLD = 100f;
 
     private Position position;
     private float directionX;
@@ -36,10 +37,14 @@ public class Rabbit {
         if (!isAlive()) {
             return null;
         }
-        Grass closestGrass = findClosestGrass(grassPatches);
+        Grass closestGrass = null;
 
-        if (closestGrass != null) {
-            pointToward(closestGrass.getPosition());
+        if (isHungry()) {
+            closestGrass = findClosestGrass(grassPatches);
+
+            if (closestGrass != null) {
+                pointToward(closestGrass.getPosition());
+            }
         }
         float nextX = position.x() + directionX * SPEED * deltaTime;
         float nextY = position.y() + directionY * SPEED * deltaTime;
@@ -124,5 +129,8 @@ public class Rabbit {
 
         directionX = deltaX / distance;
         directionY = deltaY / distance;
+    }
+    private boolean isHungry() {
+        return energy < HUNGER_THRESHOLD;
     }
 }
