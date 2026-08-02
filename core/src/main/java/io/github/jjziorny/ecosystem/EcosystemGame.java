@@ -99,6 +99,17 @@ public class EcosystemGame extends ApplicationAdapter {
         rabbits.addAll(newbornRabbits);
         rabbits.removeIf(rabbit -> !rabbit.isAlive());
 
+        for (Fox fox : foxes) {
+            fox.update(
+                deltaTime,
+                rabbits,
+                FOX_RADIUS,
+                WORLD_WIDTH - FOX_RADIUS,
+                FOX_RADIUS,
+                WORLD_HEIGHT - FOX_RADIUS
+            );
+        }
+
         growGrass(deltaTime);
         updateWindowTitle(deltaTime);
 
