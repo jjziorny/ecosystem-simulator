@@ -15,16 +15,24 @@ public class Rabbit {
     private static final float REPRODUCTION_ENERGY_COST = 60f;
     private static final float NEWBORN_ENERGY = 50f;
     private static final float REPRODUCTION_COOLDOWN_DURATION = 8f;
+    private static final float MIN_LIFESPAN_SECONDS = 45f;
+    private static final float MAX_LIFESPAN_SECONDS = 75f;
 
     private Position position;
     private float directionX;
     private float directionY;
     private float energy = INITIAL_ENERGY;
     private float reproductionCooldown;
+    private float age;
+    private final float lifespan;
 
     public Rabbit(Position position) {
         this.position = position;
         chooseRandomDirection();
+        lifespan = (float) ThreadLocalRandom.current().nextDouble(
+            MIN_LIFESPAN_SECONDS,
+            MAX_LIFESPAN_SECONDS
+        );
     }
 
     public Object update(
@@ -47,6 +55,7 @@ public class Rabbit {
         if (!isAlive()) {
             return null;
         }
+        age += deltaTime;
         Grass closestGrass = null;
 
         if (isHungry()) {
@@ -107,7 +116,7 @@ public class Rabbit {
     }
 
     public boolean isAlive() {
-        return energy > 0f;
+        return energy > 0f && age < lifespan;
     }
 
     public float getEnergy() {

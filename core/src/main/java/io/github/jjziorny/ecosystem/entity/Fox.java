@@ -17,12 +17,16 @@ public class Fox {
     private static final float REPRODUCTION_ENERGY_COST = 80f;
     private static final float NEWBORN_ENERGY = 60f;
     private static final float REPRODUCTION_COOLDOWN_DURATION = 15f;
+    private static final float MIN_LIFESPAN_SECONDS = 60f;
+    private static final float MAX_LIFESPAN_SECONDS = 90f;
 
     private Position position;
     private float directionX;
     private float directionY;
     private float energy;
     private float reproductionCooldown;
+    private float age;
+    private final float lifespan;
 
     public Fox(Position position) {
         this.position = position;
@@ -35,6 +39,10 @@ public class Fox {
 
         directionX = (float) Math.cos(angle);
         directionY = (float) Math.sin(angle);
+        lifespan = (float) ThreadLocalRandom.current().nextDouble(
+            MIN_LIFESPAN_SECONDS,
+            MAX_LIFESPAN_SECONDS
+        );
     }
 
     public Rabbit update(
@@ -47,6 +55,7 @@ public class Fox {
         float maxY
     ) {
         loseEnergy(deltaTime);
+        age += deltaTime;
         reproductionCooldown = Math.max(
             0f,
             reproductionCooldown - deltaTime
@@ -146,7 +155,7 @@ public class Fox {
     }
 
     public boolean isAlive() {
-        return energy > 0f;
+        return energy > 0f && age < lifespan;
     }
 
     public Position getPosition() {
