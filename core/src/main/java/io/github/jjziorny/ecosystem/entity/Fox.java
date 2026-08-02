@@ -8,12 +8,20 @@ public class Fox {
 
     private static final float SPEED = 12f;
 
+    private static final float INITIAL_ENERGY = 100f;
+    private static final float MAX_ENERGY = 150f;
+    private static final float HUNGER_THRESHOLD = 100f;
+    private static final float ENERGY_LOSS_PER_SECOND = 7f;
+    private static final float ENERGY_GAIN_FROM_RABBIT = 60f;
+
     private Position position;
     private float directionX;
     private float directionY;
+    private float energy;
 
     public Fox(Position position) {
         this.position = position;
+        energy = INITIAL_ENERGY;
 
         double angle = ThreadLocalRandom.current().nextDouble(
             0,
@@ -24,18 +32,29 @@ public class Fox {
         directionY = (float) Math.sin(angle);
     }
 
-    public void update(
+    public Rabbit update(
         float deltaTime,
         List<Rabbit> rabbits,
+        float captureDistance,
         float minX,
         float maxX,
         float minY,
         float maxY
     ) {
-        Rabbit closestRabbit = findClosestRabbit(rabbits);
+        loseEnergy(deltaTime);
 
-        if (closestRabbit != null) {
-            pointToward(closestRabbit.getPosition());
+        if (!isAlive()) {
+            return null;
+        }
+
+        Rabbit closestRabbit = null;
+
+        if (isHungry()) {
+            closestRabbit = findClosestRabbit(rabbits);
+
+            if (closestRabbit != null) {
+                pointToward(closestRabbit.getPosition());
+            }
         }
 
         float nextX =
@@ -61,6 +80,18 @@ public class Fox {
         }
 
         position = new Position(nextX, nextY);
+
+        if (
+            closestRabbit != null
+                && position.distanceTo(
+                closestRabbit.getPosition()
+            ) <= captureDistance
+        ) {
+            gainEnergy(ENERGY_GAIN_FROM_RABBIT);
+            return closestRabbit;
+        }
+
+        return null;
     }
 
     private Rabbit findClosestRabbit(List<Rabbit> rabbits) {
@@ -91,6 +122,22 @@ public class Fox {
 
         directionX = deltaX / distance;
         directionY = deltaY / distance;
+    }
+
+    private void loseEnergy(float deltaTime) {
+        energy -= ENERGY_LOSS_PER_SECOND * deltaTime;
+    }
+
+    private void gainEnergy(float amount) {
+        energy = Math.min(MAX_ENERGY, energy + amount);
+    }
+
+    private boolean isHungry() {
+        return energy < HUNGER_THRESHOLD;
+    }
+
+    public boolean isAlive() {
+        return energy > 0f;
     }
 
     public Position getPosition() {
