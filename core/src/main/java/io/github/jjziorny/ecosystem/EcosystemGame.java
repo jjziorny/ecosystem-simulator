@@ -33,6 +33,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final int INITIAL_FOX_COUNT = 3;
     private static final float FOX_RADIUS = 1.8f;
     private static final int FOX_SEGMENTS = 32;
+    private static final int MAX_FOX_COUNT = 15;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -99,6 +100,8 @@ public class EcosystemGame extends ApplicationAdapter {
         rabbits.addAll(newbornRabbits);
         rabbits.removeIf(rabbit -> !rabbit.isAlive());
 
+        List<Fox> newbornFoxes = new ArrayList<>();
+
         for (Fox fox : foxes) {
             Rabbit capturedRabbit = fox.update(
                 deltaTime,
@@ -113,8 +116,20 @@ public class EcosystemGame extends ApplicationAdapter {
             if (capturedRabbit != null) {
                 rabbits.remove(capturedRabbit);
             }
+
+            if (
+                foxes.size() + newbornFoxes.size() < MAX_FOX_COUNT
+                    && fox.canReproduce()
+            ) {
+                Fox newborn = fox.reproduce();
+
+                if (newborn != null) {
+                    newbornFoxes.add(newborn);
+                }
+            }
         }
 
+        foxes.addAll(newbornFoxes);
         foxes.removeIf(fox -> !fox.isAlive());
 
         growGrass(deltaTime);

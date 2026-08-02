@@ -13,11 +13,16 @@ public class Fox {
     private static final float HUNGER_THRESHOLD = 100f;
     private static final float ENERGY_LOSS_PER_SECOND = 7f;
     private static final float ENERGY_GAIN_FROM_RABBIT = 60f;
+    private static final float REPRODUCTION_ENERGY_THRESHOLD = 140f;
+    private static final float REPRODUCTION_ENERGY_COST = 80f;
+    private static final float NEWBORN_ENERGY = 60f;
+    private static final float REPRODUCTION_COOLDOWN_DURATION = 15f;
 
     private Position position;
     private float directionX;
     private float directionY;
     private float energy;
+    private float reproductionCooldown;
 
     public Fox(Position position) {
         this.position = position;
@@ -42,6 +47,10 @@ public class Fox {
         float maxY
     ) {
         loseEnergy(deltaTime);
+        reproductionCooldown = Math.max(
+            0f,
+            reproductionCooldown - deltaTime
+        );
 
         if (!isAlive()) {
             return null;
@@ -142,5 +151,28 @@ public class Fox {
 
     public Position getPosition() {
         return position;
+    }
+    public boolean canReproduce() {
+        return isAlive()
+            && energy >= REPRODUCTION_ENERGY_THRESHOLD
+            && reproductionCooldown <= 0f;
+    }
+    public Fox reproduce() {
+        if (!canReproduce()) {
+            return null;
+        }
+
+        energy -= REPRODUCTION_ENERGY_COST;
+        reproductionCooldown = REPRODUCTION_COOLDOWN_DURATION;
+
+        Fox newborn = new Fox(
+            new Position(position.x(), position.y())
+        );
+
+        newborn.energy = NEWBORN_ENERGY;
+        newborn.reproductionCooldown =
+            REPRODUCTION_COOLDOWN_DURATION;
+
+        return newborn;
     }
 }
