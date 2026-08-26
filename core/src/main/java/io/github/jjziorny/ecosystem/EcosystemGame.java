@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import io.github.jjziorny.ecosystem.entity.Grass;
 import io.github.jjziorny.ecosystem.entity.Fox;
+import io.github.jjziorny.ecosystem.world.WaterSource;
 
 public class EcosystemGame extends ApplicationAdapter {
 
@@ -34,6 +35,9 @@ public class EcosystemGame extends ApplicationAdapter {
     private static final float FOX_RADIUS = 1.8f;
     private static final int FOX_SEGMENTS = 32;
     private static final int MAX_FOX_COUNT = 15;
+    private static final int INITIAL_WATER_SOURCE_COUNT = 5;
+    private static final float WATER_SOURCE_RADIUS = 3f;
+    private static final int WATER_SOURCE_SEGMENTS = 32;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -41,6 +45,7 @@ public class EcosystemGame extends ApplicationAdapter {
     private List<Rabbit> rabbits;
     private List<Grass> grassPatches;
     private List<Fox> foxes;
+    private List<WaterSource> waterSources;
     private float grassGrowthTimer;
     private float titleUpdateTimer;
 
@@ -60,6 +65,8 @@ public class EcosystemGame extends ApplicationAdapter {
         createInitialGrass();
         foxes = new ArrayList<>();
         createInitialFoxes();
+        waterSources = new ArrayList<>();
+        createInitialWaterSources();
     }
 
 
@@ -144,7 +151,17 @@ public class EcosystemGame extends ApplicationAdapter {
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//Desenha a agua
+        for (WaterSource waterSource : waterSources) {
+            Position waterPosition = waterSource.getPosition();
 
+            shapeRenderer.circle(
+                waterPosition.x(),
+                waterPosition.y(),
+                WATER_SOURCE_RADIUS,
+                WATER_SOURCE_SEGMENTS
+            );
+        }
         // Desenha a grama
         shapeRenderer.setColor(Color.GREEN);
 
@@ -173,7 +190,7 @@ public class EcosystemGame extends ApplicationAdapter {
             );
         }
         shapeRenderer.setColor(Color.ORANGE);
-
+// Desenha raposas
         for (Fox fox : foxes) {
             Position foxPosition = fox.getPosition();
 
@@ -184,6 +201,8 @@ public class EcosystemGame extends ApplicationAdapter {
                 FOX_SEGMENTS
             );
         }
+
+        shapeRenderer.setColor(Color.BLUE);
 
         shapeRenderer.end();
 
@@ -278,6 +297,29 @@ public class EcosystemGame extends ApplicationAdapter {
             );
 
             foxes.add(new Fox(new Position(x, y)));
+        }
+    }
+    private void createInitialWaterSources() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        for (
+            int index = 0;
+            index < INITIAL_WATER_SOURCE_COUNT;
+            index++
+        ) {
+            float x = (float) random.nextDouble(
+                WATER_SOURCE_RADIUS,
+                WORLD_WIDTH - WATER_SOURCE_RADIUS
+            );
+
+            float y = (float) random.nextDouble(
+                WATER_SOURCE_RADIUS,
+                WORLD_HEIGHT - WATER_SOURCE_RADIUS
+            );
+
+            waterSources.add(
+                new WaterSource(new Position(x, y))
+            );
         }
     }
 }
