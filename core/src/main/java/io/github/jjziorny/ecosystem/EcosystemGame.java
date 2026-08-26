@@ -71,9 +71,10 @@ public class EcosystemGame extends ApplicationAdapter {
 
         // Atualiza os coelhos
         for (Rabbit rabbit : rabbits) {
-            Object eatenGrass = rabbit.update(
+            Grass eatenGrass = (Grass) rabbit.update(
                 deltaTime,
                 grassPatches,
+                foxes,
                 RABBIT_RADIUS + GRASS_RADIUS,
                 RABBIT_RADIUS,
                 WORLD_WIDTH - RABBIT_RADIUS,

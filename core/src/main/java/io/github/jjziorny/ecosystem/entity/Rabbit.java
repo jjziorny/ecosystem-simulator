@@ -17,6 +17,7 @@ public class Rabbit {
     private static final float REPRODUCTION_COOLDOWN_DURATION = 8f;
     private static final float MIN_LIFESPAN_SECONDS = 45f;
     private static final float MAX_LIFESPAN_SECONDS = 75f;
+    private static final float FOX_DETECTION_DISTANCE = 15f;
 
     private Position position;
     private float directionX;
@@ -38,6 +39,7 @@ public class Rabbit {
     public Object update(
         float deltaTime,
         List<Grass> grassPatches,
+        List<Fox> foxes,
         float eatingDistance,
         float minX,
         float maxX,
@@ -57,8 +59,11 @@ public class Rabbit {
         }
         age += deltaTime;
         Grass closestGrass = null;
+        Fox closestFox = findClosestFox(foxes);
 
-        if (isHungry()) {
+        if (closestFox != null) {
+            pointAwayFrom(closestFox.getPosition());
+        } else if (isHungry()) {
             closestGrass = findClosestGrass(grassPatches);
 
             if (closestGrass != null) {
@@ -87,7 +92,41 @@ public class Rabbit {
             return closestGrass;
         }
 
+
         return null;
+    }
+
+    private Fox findClosestFox(List<Fox> foxes) {
+        Fox closestFox = null;
+        float smallestDistance = FOX_DETECTION_DISTANCE;
+
+        for (Fox fox : foxes) {
+            float distance = position.distanceTo(
+                fox.getPosition()
+            );
+
+            if (distance < smallestDistance) {
+                smallestDistance = distance;
+                closestFox = fox;
+            }
+        }
+
+        return closestFox;
+    }
+
+    private void pointAwayFrom(Position threat) {
+        float deltaX = position.x() - threat.x();
+        float deltaY = position.y() - threat.y();
+        float distance = position.distanceTo(threat);
+
+        if (distance <= 0.0001f) {
+            directionX = -directionX;
+            directionY = -directionY;
+            return;
+        }
+
+        directionX = deltaX / distance;
+        directionY = deltaY / distance;
     }
     private void gainEnergy(float amount) {
         energy = Math.min(MAX_ENERGY, energy + amount);
